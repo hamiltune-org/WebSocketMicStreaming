@@ -1,0 +1,3 @@
+New approach -- use AudioSettings.dspTime and PlayScheduled instead of relying on socket reception time.
+
+New functions, old implementations commented out and comments explain where new stuff is added.
