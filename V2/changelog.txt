@@ -1,0 +1,10 @@
+1. Encapsulated Mic stuff into a class that extends server, server is
+	now abstract and must have a subclass implement parse and register methods
+	
+2. The included mic server class now registers clients as a new class,
+	myclients. myclients have all of the mic features from v1 but are also tied
+	to a gameobject, client id and tcpclient
+	
+3. I had to change the while (stream.Available) to < 9 in order to work with firefox.
+	I guess firefox sends the message meta data first without sending the data? Msglen
+	Was wrong and gave an invalid index exception because bytes length was only 8

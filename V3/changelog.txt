@@ -1,0 +1,8 @@
+1. Added the audio sources to the clients themselves (I forgot to do this in V2)
+
+2. Added a client volume parameter,d efault value of 5 seems good for me.
+
+3. Added a new abstract method, onClose, to WS_Server because in my case I want to 
+	destroy gameobjects when I close (Also note important to do this on main thread)
+	
+	
