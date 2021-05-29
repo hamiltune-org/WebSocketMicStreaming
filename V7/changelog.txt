@@ -1,0 +1,1 @@
+Really just adjusted some parameters for less clicking, Client seems to be issue (chrome)
