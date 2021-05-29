@@ -1,0 +1,3 @@
+An even newer approach -> copy blocks of samples from client (1024) into a buffer (ie 16384) and when ready schedule with playscheduled (similar to v4). 
+
+Implementation in MicStream2
