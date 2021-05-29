@@ -1,0 +1,111 @@
+<!doctype html>
+<style>
+    textarea { vertical-align: bottom; }
+    #output { overflow: auto; }
+    #output > p { overflow-wrap: break-word; }
+    #output span { color: blue; }
+    #output span.error { color: red; }
+</style>
+<h2>WebSocket Test</h2>
+<textarea cols=60 rows=6></textarea>
+<button>send</button>
+<div id=output></div>
+<script>
+    // http://www.websocket.org/echo.html
+
+    var button = document.querySelector("button"),
+        output = document.querySelector("#output"),
+        textarea = document.querySelector("textarea"),
+        _ip = "localhost",
+        _port = 89,
+        _connected = false
+
+    var websocket;
+
+    button.addEventListener("click", onClickButton);
+
+    function assignEvents() {
+
+        websocket.onopen = function (e) {
+            writeToScreen("CONNECTED");
+            _connected = true;
+            doSend("WebSocket rocks");
+        };
+
+        websocket.onclose = function (e) {
+            writeToScreen("DISCONNECTED");
+            _connected = false;
+        };
+
+        websocket.onmessage = function (e) {
+            writeToScreen("<span>RESPONSE: " + e.data + "</span>");
+        };
+
+        websocket.onerror = function (e) {
+            writeToScreen("<span class=error>ERROR:</span> " + e.data);
+        };
+    }
+
+    function doSend(message) {
+        writeToScreen("SENT: " + message);
+        websocket.send(message);
+    }
+
+    function writeToScreen(message) {
+        output.insertAdjacentHTML("afterbegin", "<p>" + message + "</p>");
+    }
+
+    function onClickButton() {
+        var text = textarea.value;
+
+        text && doSend(text);
+        textarea.value = "";
+        textarea.focus();
+    }
+
+    function connectWS(ip, port) {
+        _ip = ip;
+        _port = port;
+        connectWS();
+    }
+
+    function connectWS() {
+       writeToScreen("Connecting...");
+       if (_ip == "localhost") _ip = "127.0.0.1";
+       websocket = new WebSocket("ws://" + _ip + ":" + _port);
+       assignEvents();
+    }
+
+    // -----------------------------------------------------
+
+    const handleSuccess = function(stream) {
+        var bufferSize = 2*2048;
+        //var buffer = _malloc(4 * 512);
+        var buffer = new ArrayBuffer(4 * bufferSize);
+        var arr = new Float32Array(buffer);
+        //var arr = new Float32Array(HEAPF32.buffer, buffer, 512);
+
+        var ctx = new AudioContext();
+        ctx.sampleRate = 44100;
+        
+        var src = ctx.createMediaStreamSource(stream);
+        var scriptNode = ctx.createScriptProcessor(bufferSize, 1, 1);
+        src.connect(scriptNode);
+        scriptNode.connect(ctx.destination);
+
+        scriptNode.onaudioprocess = function(e) {
+            if (_connected) {
+                e.inputBuffer.copyFromChannel(arr, 0, 0);
+                websocket.send(buffer);
+                console.log(buffer.byteLength);
+            }
+        }
+
+        connectWS();
+    };
+
+    navigator.mediaDevices.getUserMedia({ audio: true, video: false })
+    .then(handleSuccess);
+
+    
+</script>
